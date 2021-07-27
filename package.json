@@ -1,0 +1,11 @@
+{
+  "name": "forkengine-core",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/endrealm/forkengine-core",
+  "author": "gerolmed <werwolf420@yahoo.de>",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.3.5"
+  }
+}

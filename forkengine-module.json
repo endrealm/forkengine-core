@@ -1,19 +1,9 @@
 {
-    version: "1.0",
-    dependencies: {
-        "https://github.com/Gerolmed/forkengine-old.git": {
-            branch: "main",
-            weak: false // (optional)
+    "version": "1.0",
+    "dependencies": {
+        "https://github.com/endrealm/forkengine-core.git": {
+            "branch": "main",
+            "weak": false
         }
-    },
-    nodeDependency: {
-        "@three-ts/orbit-controls": "^1.4.7",
-        "flexlayout-react": "^0.5.12",
-        "three": "^0.130.1"
-    },
-    nodeDevDependency: {
-        "@three-ts/orbit-controls": "^1.4.7",
-        "flexlayout-react": "^0.5.12",
-        "three": "^0.130.1"
     }
 }
