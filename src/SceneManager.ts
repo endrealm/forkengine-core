@@ -1,4 +1,13 @@
-import { BoxGeometry, HemisphereLight, Mesh, MeshBasicMaterial, MeshStandardMaterial, Scene } from 'three';
+import {
+    BoxGeometry,
+    Camera,
+    HemisphereLight,
+    Mesh,
+    MeshBasicMaterial,
+    MeshStandardMaterial,
+    PerspectiveCamera,
+    Scene
+} from 'three';
 import { GameObject } from './GameObject';
 import { MeshComponent } from './components/MeshComponent';
 import { AmbientLightComponent, HemisphereLightComponent, PointLightComponent } from './components/LightComponent';
@@ -14,6 +23,8 @@ export class SceneManager {
     private scene = new Scene();
     private gameObjects: GameObject[] = []
     private state = State.PRE_INIT;
+
+    private camera!: Camera
 
     constructor() {
         this.updateSceneRender = this.updateSceneRender.bind(this);
@@ -33,6 +44,13 @@ export class SceneManager {
                 .addComponent(new MeshComponent(new BoxGeometry(1, 1, 1), new MeshStandardMaterial({color: 0x00ff00})))
                 .addComponent(new TestComponent())
             // Sample setup code
+
+            // set camera to correct size
+            this.camera = new PerspectiveCamera(75, 16/9, 0.1, 1000);
+
+            // assign starting position for camera
+            this.camera.position.z = 2;
+            this.camera.position.y = .5;
         }
 
 
@@ -104,6 +122,7 @@ export class SceneManager {
             try {
                 callback(gameObject);
             } catch (error) {
+                // @ts-ignore
                 console.error(error.message)
             }
         })
@@ -116,6 +135,8 @@ export class SceneManager {
     public getActiveScene() {
         return this.scene;
     }
-}
 
-export const SCENE_MANAGER = new SceneManager();
+    public getCamera() {
+        return this.camera
+    }
+}

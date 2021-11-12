@@ -108,6 +108,7 @@ export class GameObject {
             try {
                 callback(component);
             } catch (error) {
+                // @ts-ignore
                 console.error(error.message)
             }
         })
