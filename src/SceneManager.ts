@@ -4,7 +4,7 @@ import {
     HemisphereLight,
     Mesh,
     MeshBasicMaterial,
-    MeshStandardMaterial,
+    MeshStandardMaterial, OrthographicCamera,
     PerspectiveCamera,
     Scene
 } from 'three';
@@ -12,6 +12,8 @@ import { GameObject } from './GameObject';
 import { MeshComponent } from './components/MeshComponent';
 import { AmbientLightComponent, HemisphereLightComponent, PointLightComponent } from './components/LightComponent';
 import { TestComponent } from './components/TestComponent';
+import {SceneConfig} from "./Config";
+import {BehaviorSubject} from "rx";
 
 enum State {
     PRE_INIT,
@@ -20,13 +22,18 @@ enum State {
 }
 
 export class SceneManager {
+
     private scene = new Scene();
     private gameObjects: GameObject[] = []
     private state = State.PRE_INIT;
 
-    private camera!: Camera
+    private camera: {cameraRef?: Camera, test: string} = {test: "HELLO WORLD"}
+
+    private readonly config: SceneConfig;
+
 
     constructor() {
+        this.config = new SceneConfig(this.camera)
         this.updateSceneRender = this.updateSceneRender.bind(this);
     }
 
@@ -46,13 +53,15 @@ export class SceneManager {
             // Sample setup code
 
             // set camera to correct size
-            this.camera = new PerspectiveCamera(75, 16/9, 0.1, 1000);
+            this.camera.cameraRef = new PerspectiveCamera(75, 16/9, 0.1, 1000);
+
 
             // assign starting position for camera
-            this.camera.position.z = 2;
-            this.camera.position.y = .5;
+            this.camera.cameraRef.position.z = 2;
+            this.camera.cameraRef.position.y = .5;
         }
 
+        this.config.update()
 
         this.runSafeLoop(gameObject => gameObject.start())
         this.state = State.RUNNING;
@@ -137,6 +146,11 @@ export class SceneManager {
     }
 
     public getCamera() {
-        return this.camera
+        return this.camera.cameraRef
     }
+
+    public getConfig() {
+        return this.config
+    }
+
 }
