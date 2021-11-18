@@ -1,5 +1,5 @@
 import {BehaviorSubject, IDisposable, Observable } from "rx";
-import {Camera, PerspectiveCamera} from "three";
+import {Camera, OrthographicCamera, PerspectiveCamera} from "three";
 
 
 export type DimensionsType = {
@@ -42,6 +42,12 @@ export class SceneConfig {
         if(camera instanceof PerspectiveCamera) {
             camera.aspect = dim.width / dim.height
             camera.updateProjectionMatrix()
+        }
+        if(camera instanceof OrthographicCamera) {
+            camera.left = dim.width / -2
+            camera.right = dim.width / 2
+            camera.top = dim.height / 2
+            camera.bottom = dim.height / -2
         }
     }
 

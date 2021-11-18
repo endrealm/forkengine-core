@@ -14,6 +14,7 @@ import { AmbientLightComponent, HemisphereLightComponent, PointLightComponent } 
 import { TestComponent } from './components/TestComponent';
 import {SceneConfig} from "./Config";
 import {BehaviorSubject} from "rx";
+import {ISceneController} from "./SceneController";
 
 enum State {
     PRE_INIT,
@@ -32,7 +33,7 @@ export class SceneManager {
     private readonly config: SceneConfig;
 
 
-    constructor() {
+    constructor(private readonly sceneController: ISceneController) {
         this.config = new SceneConfig(this.camera)
         this.updateSceneRender = this.updateSceneRender.bind(this);
     }
@@ -40,25 +41,9 @@ export class SceneManager {
     public initScene() {
 
         if(this.state === State.PRE_INIT) {
-            // Sample setup code
-            const light = this.addGameObject(new GameObject())
-                .addComponent(new HemisphereLightComponent(0xffffbb, 0x080820, .6))
-                .addComponent(new AmbientLightComponent(0xffffff, .3))
-                .addComponent(new PointLightComponent(0xffffff, 1))
-            light.transform.position.y = 3;
+            this.sceneController.initialize(this)
 
-            const box2 = this.addGameObject(new GameObject())
-                .addComponent(new MeshComponent(new BoxGeometry(1, 1, 1), new MeshStandardMaterial({color: 0x00ff00})))
-                .addComponent(new TestComponent())
-            // Sample setup code
-
-            // set camera to correct size
-            this.camera.cameraRef = new PerspectiveCamera(75, 16/9, 0.1, 1000);
-
-
-            // assign starting position for camera
-            this.camera.cameraRef.position.z = 2;
-            this.camera.cameraRef.position.y = .5;
+            this.camera.cameraRef = this.sceneController.createCamera()
         }
 
         this.config.update()
@@ -124,6 +109,7 @@ export class SceneManager {
         this.state = State.STOPPED;
         this.runSafeLoop(gameObject => gameObject.stop())
 
+        this.config.dispose()
     }
 
     private runSafeLoop(callback: (gameObject: GameObject) => any) {
