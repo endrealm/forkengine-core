@@ -6,6 +6,7 @@
   "author": "gerolmed <werwolf420@yahoo.de>",
   "license": "MIT",
   "dependencies": {
+    "@types/rx": "^4.1.2",
     "rx": "^4.1.0",
     "three": "^0.130.1"
   },
