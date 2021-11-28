@@ -15,6 +15,7 @@ import { TestComponent } from './components/TestComponent';
 import {SceneConfig} from "./Config";
 import {BehaviorSubject} from "rx";
 import {ISceneController} from "./SceneController";
+import {MouseEventHandler} from "./MouseEventHandler";
 
 enum State {
     PRE_INIT,
@@ -28,7 +29,9 @@ export class SceneManager {
     private gameObjects: GameObject[] = []
     private state = State.PRE_INIT;
 
-    private camera: {cameraRef?: Camera, test: string} = {test: "HELLO WORLD"}
+    private camera: {cameraRef?: Camera} = {}
+
+    private mouseEventHandler?: MouseEventHandler
 
     private readonly config: SceneConfig;
 
@@ -137,6 +140,23 @@ export class SceneManager {
 
     public getConfig() {
         return this.config
+    }
+
+
+    public setEnableMouseEvents(mouseEvents: boolean) {
+        if(mouseEvents) {
+            this.mouseEventHandler = new MouseEventHandler()
+        } else {
+            this.mouseEventHandler = undefined
+        }
+    }
+
+    public mouseEventsEnabled(): boolean {
+        return !!this.mouseEventHandler
+    }
+
+    public getMouseEventHandler() {
+        return this.mouseEventHandler
     }
 
 }

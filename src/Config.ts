@@ -15,7 +15,7 @@ export class SceneConfig {
     private dimensions?: BehaviorSubject<DimensionsType>
 
 
-    constructor(private readonly camera: {cameraRef?: Camera, test: string}) {
+    constructor(private readonly camera: {cameraRef?: Camera}) {
 
     }
 

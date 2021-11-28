@@ -64,6 +64,10 @@ export class GameObject {
         return this;
     }
 
+    getComponent(typeName: string): Component | undefined {
+        return this.components.find(component => component.typeName)
+    }
+
     public start() {
         this.state = State.RUNNING;
 
