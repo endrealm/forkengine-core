@@ -115,6 +115,15 @@ export class MouseEventHandler {
         this.updateObjectTransform(this.camera, this.mainCamera.cameraRef)
     }
 
+    private updateAllObjectsTransformations() {
+        for (let objectStoreKey in this.objectStore) {
+            if(!this.objectStore.hasOwnProperty(objectStoreKey)) continue
+
+            const entry = this.objectStore[objectStoreKey]
+            this.updateObjectTransform(entry.object, entry.component.getGameObject().group)
+        }
+    }
+
     clear() {
         this.latest = false
     }
@@ -155,6 +164,7 @@ export class MouseEventHandler {
 
     render(renderer: WebGLRenderer, mousePosition: {x: number, y: number}) {
         this.updateCameraTransform()
+        this.updateAllObjectsTransformations()
 
         this.prepareCamera(renderer, mousePosition)
 
