@@ -34,6 +34,10 @@ export class SceneConfig {
         this.dimensionsSubscription = dimensions.subscribe(this.setCameraAspectRatio)
     }
 
+    getDimensions() {
+        return this.dimensions?.getValue()
+    }
+
     private setCameraAspectRatio = (dim: DimensionsType) => {
         const camera = this.camera.cameraRef
         if(!camera) return

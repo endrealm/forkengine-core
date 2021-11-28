@@ -5,7 +5,7 @@ import {
     Material,
     Mesh,
     MeshPhongMaterial,
-    NoBlending,
+    NoBlending, Object3D,
     PerspectiveCamera,
     Scene,
     WebGLRenderer,
@@ -13,6 +13,7 @@ import {
 } from "three";
 import {MouseInteractableComponent} from "./components/MouseInteractableComponent";
 import {GameObject} from "./GameObject";
+import {SceneConfig} from "./Config";
 
 
 type ObjectStore = {
@@ -32,12 +33,17 @@ export class MouseEventHandler {
     private latest: boolean = false
     private renderTarget = new WebGLRenderTarget(1, 1)
     private pixelBuffer = new Uint8Array(4)
+    private camera: Camera
 
     private readonly objectStore: ObjectStore = {}
 
 
-    constructor() {
+    constructor(private readonly mainCamera: {cameraRef?: Camera},
+                private readonly createCamera: () => Camera,
+                private readonly config: SceneConfig) {
         this.mouseDetectionScene.background = new Color(0, 0, 0)
+
+        this.camera = createCamera()
     }
 
 
@@ -46,7 +52,7 @@ export class MouseEventHandler {
 
         // TODO subscribe to game object group changes!
         const group = this.createGroup(component.getGameObject(), id)
-        this.updateObjectTransform(group, component.getGameObject())
+        this.updateObjectTransform(group, component.getGameObject().group)
         this.mouseDetectionScene.add(group)
         this.objectStore[id] = {
             component,
@@ -94,14 +100,19 @@ export class MouseEventHandler {
         return group
     }
 
-    private updateObjectTransform(object: Group, gameObject: GameObject) {
-        object.position.x = gameObject.transform.position.x
-        object.position.y = gameObject.transform.position.y
-        object.position.z = gameObject.transform.position.z
+    private updateObjectTransform(to: Object3D, from: Object3D) {
+        to.position.x = from.position.x
+        to.position.y = from.position.y
+        to.position.z = from.position.z
 
-        object.rotation.x = gameObject.transform.rotation.x
-        object.rotation.y = gameObject.transform.rotation.y
-        object.rotation.z = gameObject.transform.rotation.z
+        to.rotation.x = from.rotation.x
+        to.rotation.y = from.rotation.y
+        to.rotation.z = from.rotation.z
+    }
+
+    private updateCameraTransform() {
+        if(!this.mainCamera.cameraRef) throw new Error("Main camera not initialized")
+        this.updateObjectTransform(this.camera, this.mainCamera.cameraRef)
     }
 
     clear() {
@@ -116,15 +127,16 @@ export class MouseEventHandler {
 
     // RENDERING --------------------------------------
 
-    private prepareCamera(renderer: WebGLRenderer, camera: Camera, mousePosition: {x: number, y: number}) {
-        if(camera instanceof PerspectiveCamera) {
-            // set the view offset to represent just a single pixel under the mouse
-            const pixelRatio = renderer.getPixelRatio();
-            camera.setViewOffset(
-                renderer.getContext().drawingBufferWidth,   // full width
-                renderer.getContext().drawingBufferHeight,  // full top
-                mousePosition.x * pixelRatio | 0,             // rect x
-                mousePosition.y * pixelRatio | 0,             // rect y
+    private prepareCamera(renderer: WebGLRenderer, mousePosition: {x: number, y: number}) {
+        const dimensions = this.config.getDimensions()
+        if(!dimensions) throw new Error("Cannot read dimensions")
+
+        if(this.camera instanceof PerspectiveCamera) {
+            this.camera.setViewOffset(
+                dimensions.width,   // full width
+                dimensions.height,  // full top
+                mousePosition.x | 0,             // rect x
+                mousePosition.y | 0,             // rect y
                 1,                                          // rect width
                 1,                                          // rect height
             );
@@ -133,24 +145,26 @@ export class MouseEventHandler {
         }
     }
 
-    private clearCamera(camera: Camera) {
-        if(camera instanceof PerspectiveCamera) {
-            camera.clearViewOffset()
+    private clearCamera() {
+        if(this.camera instanceof PerspectiveCamera) {
+            this.camera.clearViewOffset()
         } else {
             throw new Error("This camera type is not supported yet")
         }
     }
 
-    render(renderer: WebGLRenderer, camera: Camera, mousePosition: {x: number, y: number}) {
-        this.prepareCamera(renderer, camera, mousePosition)
+    render(renderer: WebGLRenderer, mousePosition: {x: number, y: number}) {
+        this.updateCameraTransform()
+
+        this.prepareCamera(renderer, mousePosition)
 
         renderer.setRenderTarget(this.renderTarget)
-        renderer.render(this.mouseDetectionScene, camera)
+        renderer.render(this.mouseDetectionScene, this.camera)
         renderer.setRenderTarget(null)
 
         renderer.readRenderTargetPixels(this.renderTarget, 0, 0, 1, 1, this.pixelBuffer)
 
-        this.clearCamera(camera)
+        this.clearCamera()
 
         this.latest = true
     }

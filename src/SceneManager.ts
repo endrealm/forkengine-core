@@ -1,19 +1,9 @@
 import {
-    BoxGeometry,
     Camera,
-    HemisphereLight,
-    Mesh,
-    MeshBasicMaterial,
-    MeshStandardMaterial, OrthographicCamera,
-    PerspectiveCamera,
     Scene
 } from 'three';
 import { GameObject } from './GameObject';
-import { MeshComponent } from './components/MeshComponent';
-import { AmbientLightComponent, HemisphereLightComponent, PointLightComponent } from './components/LightComponent';
-import { TestComponent } from './components/TestComponent';
 import {SceneConfig} from "./Config";
-import {BehaviorSubject} from "rx";
 import {ISceneController} from "./SceneController";
 import {MouseEventHandler} from "./MouseEventHandler";
 
@@ -145,7 +135,7 @@ export class SceneManager {
 
     public setEnableMouseEvents(mouseEvents: boolean) {
         if(mouseEvents) {
-            this.mouseEventHandler = new MouseEventHandler()
+            this.mouseEventHandler = new MouseEventHandler(this.camera, this.sceneController.createCamera, this.config)
         } else {
             this.mouseEventHandler = undefined
         }
