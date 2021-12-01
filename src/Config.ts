@@ -1,5 +1,6 @@
-import {BehaviorSubject, IDisposable, Observable } from "rx";
+import {BehaviorSubject, IDisposable, Observable, Subject } from "rx";
 import {Camera, OrthographicCamera, PerspectiveCamera} from "three";
+import {MouseEventHandler} from "./MouseEventHandler";
 
 
 export type DimensionsType = {
@@ -14,8 +15,11 @@ export class SceneConfig {
     private dimensionsSubscription?: IDisposable
     private dimensions?: BehaviorSubject<DimensionsType>
 
+    private clickSubscription?: IDisposable
 
-    constructor(private readonly camera: {cameraRef?: Camera}) {
+
+    constructor(private readonly camera: {cameraRef?: Camera},
+                private readonly mouseHandler: {mouseHandlerRef?: MouseEventHandler}) {
 
     }
 
@@ -33,6 +37,17 @@ export class SceneConfig {
 
         this.dimensionsSubscription = dimensions.subscribe(this.setCameraAspectRatio)
     }
+
+    setClicks(clicks: Subject<{x: number, y: number}>) {
+        if(this.clickSubscription) this.clickSubscription.dispose()
+
+        this.clickSubscription = clicks.subscribe((position) => {
+            if(this.mouseHandler.mouseHandlerRef) {
+                this.mouseHandler.mouseHandlerRef.onClick(position)
+            }
+        })
+    }
+
 
     getDimensions() {
         return this.dimensions?.getValue()
@@ -62,6 +77,7 @@ export class SceneConfig {
 
     dispose() {
         this.dimensionsSubscription?.dispose()
+        this.clickSubscription?.dispose()
     }
 
 }

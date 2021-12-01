@@ -210,4 +210,11 @@ export class MouseEventHandler {
         }
     }
 
+    onClick(position: {x: number, y: number}) {
+        if(!this.latest) return
+
+        const obj = this.pickAt(position)
+        if(obj) obj.onClick()
+    }
+
 }

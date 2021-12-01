@@ -21,13 +21,13 @@ export class SceneManager {
 
     private camera: {cameraRef?: Camera} = {}
 
-    private mouseEventHandler?: MouseEventHandler
+    private mouseEventHandler: {mouseHandlerRef?: MouseEventHandler} = {}
 
     private readonly config: SceneConfig;
 
 
     constructor(private readonly sceneController: ISceneController) {
-        this.config = new SceneConfig(this.camera)
+        this.config = new SceneConfig(this.camera, this.mouseEventHandler)
         this.updateSceneRender = this.updateSceneRender.bind(this);
     }
 
@@ -135,18 +135,18 @@ export class SceneManager {
 
     public setEnableMouseEvents(mouseEvents: boolean) {
         if(mouseEvents) {
-            this.mouseEventHandler = new MouseEventHandler(this.camera, this.sceneController.createCamera, this.config)
+            this.mouseEventHandler.mouseHandlerRef = new MouseEventHandler(this.camera, this.sceneController.createCamera, this.config)
         } else {
-            this.mouseEventHandler = undefined
+            this.mouseEventHandler.mouseHandlerRef = undefined
         }
     }
 
     public mouseEventsEnabled(): boolean {
-        return !!this.mouseEventHandler
+        return !!(this.mouseEventHandler.mouseHandlerRef)
     }
 
     public getMouseEventHandler() {
-        return this.mouseEventHandler
+        return this.mouseEventHandler.mouseHandlerRef
     }
 
 }
