@@ -37,6 +37,9 @@ export class MouseEventHandler {
 
     private readonly objectStore: ObjectStore = {}
 
+    // used to track which events need to be called
+    private latestInteractableComponent: MouseInteractableComponent | undefined
+
 
     constructor(private readonly mainCamera: {cameraRef?: Camera},
                 private readonly createCamera: () => Camera,
@@ -126,6 +129,9 @@ export class MouseEventHandler {
 
     clear() {
         this.latest = false
+
+        this.latestInteractableComponent?.onHoverEnd()
+        this.latestInteractableComponent = undefined
     }
 
     isRendered(): boolean {
@@ -181,12 +187,27 @@ export class MouseEventHandler {
 
     // END RENDERING ----------------------------------------------------
 
-    pickIdAt(position: {x: number, y: number}): number {
+    private pickIdAt(position: {x: number, y: number}): number {
         if(!this.latest) return -1
 
         return (this.pixelBuffer[0] << 16) |
             (this.pixelBuffer[1] << 8) |
             (this.pixelBuffer[2]);
+    }
+
+    pickAt(position: {x: number, y: number}): MouseInteractableComponent | undefined{
+        const id = this.pickIdAt(position)
+        const entry = this.objectStore[id]
+        if(entry) return entry.component
+    }
+
+    updateHoverEvents(mousePosition: {x: number, y: number}) {
+        const hovering = this.pickAt(mousePosition)
+        if(hovering !== this.latestInteractableComponent) {
+            this.latestInteractableComponent?.onHoverEnd()
+            this.latestInteractableComponent = hovering
+            this.latestInteractableComponent?.onHoverStart()
+        }
     }
 
 }

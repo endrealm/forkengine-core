@@ -2,11 +2,13 @@ import {Component} from "../Component";
 
 const NOT_REGISTERED = -1
 
-export class MouseInteractableComponent extends Component {
+
+
+export abstract class MouseInteractableComponent extends Component {
 
     private id: number = NOT_REGISTERED
 
-    constructor() {
+    protected constructor() {
         super("MouseInteractableComponent");
     }
 
@@ -25,6 +27,28 @@ export class MouseInteractableComponent extends Component {
 
     getId(): number {
         return this.id
+    }
+
+
+    /*
+     * overwrite this
+     */
+    onHoverStart() {
+
+    }
+
+    /*
+     * overwrite this
+     */
+    onHoverEnd() {
+
+    }
+
+    /*
+     * overwrite this
+     */
+    onClick() {
+
     }
 
 
