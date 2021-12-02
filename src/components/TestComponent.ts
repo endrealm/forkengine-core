@@ -8,5 +8,6 @@ export class TestComponent extends Component {
     update(delta: number) {
         this.transform.rotation.x += 1 * delta;
         this.transform.rotation.y += 1 * delta;
+        this.getGameObject().setMouseHandlerNeedsUpdate(true)
     }
 }

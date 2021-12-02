@@ -17,6 +17,13 @@ export class GameObject {
     public group = new Group;
     public readonly transform: TransformComponent;
 
+
+    /*
+     *  used to track transformation updated by the mouse event handler.
+     * if game object is not intendet to interact with mouse, this can be ignored
+     */
+    private mouseHandlerNeedsUpdate: boolean = true
+
     constructor() {
         this.transform = new TransformComponent();
         this.addComponent(this.transform)
@@ -116,5 +123,14 @@ export class GameObject {
                 console.error(error.message)
             }
         })
+    }
+
+
+    public setMouseHandlerNeedsUpdate(update: boolean) {
+        this.mouseHandlerNeedsUpdate = update
+    }
+
+    public mouseHandlerUpdateNeeded() {
+        return this.mouseHandlerNeedsUpdate
     }
 }

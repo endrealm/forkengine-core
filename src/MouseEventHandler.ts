@@ -55,6 +55,7 @@ export class MouseEventHandler {
 
         // TODO subscribe to game object group changes!
         const group = this.createGroup(component.getGameObject(), id)
+        component.getGameObject().setMouseHandlerNeedsUpdate(false)
         this.updateObjectTransform(group, component.getGameObject().group)
         this.mouseDetectionScene.add(group)
         this.objectStore[id] = {
@@ -100,6 +101,7 @@ export class MouseEventHandler {
                 group.add(this.createMesh(obj, id))
             }
         })
+        this.updateObjectTransform(group, gameObject.group)
         return group
     }
 
@@ -111,6 +113,10 @@ export class MouseEventHandler {
         to.rotation.x = from.rotation.x
         to.rotation.y = from.rotation.y
         to.rotation.z = from.rotation.z
+
+        to.scale.x = from.scale.x
+        to.scale.y = from.scale.y
+        to.scale.z = from.scale.z
     }
 
     private updateCameraTransform() {
@@ -123,7 +129,12 @@ export class MouseEventHandler {
             if(!this.objectStore.hasOwnProperty(objectStoreKey)) continue
 
             const entry = this.objectStore[objectStoreKey]
-            this.updateObjectTransform(entry.object, entry.component.getGameObject().group)
+            if(entry.component.getGameObject().mouseHandlerUpdateNeeded()) {
+                this.mouseDetectionScene.remove(entry.object)
+                entry.object = this.createGroup(entry.component.getGameObject(), Number.parseInt(objectStoreKey))
+                entry.component.getGameObject().setMouseHandlerNeedsUpdate(false)
+                this.mouseDetectionScene.add(entry.object)
+            }
         }
     }
 
