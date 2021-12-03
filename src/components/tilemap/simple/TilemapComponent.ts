@@ -13,8 +13,12 @@ export class TilemapComponent extends Component {
         super("TilemapComponent");
     }
 
+    prestart() {
+        this.generateTiles()
+    }
+
     start() {
-        this.generateTiles();
+
     }
 
     private generateTiles() {

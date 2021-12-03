@@ -66,6 +66,7 @@ export class GameObject {
         component["gameObject"] = this;
         this.components.push(component);
         if(this.state === State.RUNNING) {
+            component.prestart()
             component.start()
         }
         return this;
@@ -73,6 +74,12 @@ export class GameObject {
 
     getComponent(typeName: string): Component | undefined {
         return this.components.find(component => component.typeName)
+    }
+
+    public prestart() {
+        this.runSafeLoop(component => {
+            component.prestart();
+        })
     }
 
     public start() {

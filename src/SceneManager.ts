@@ -41,6 +41,7 @@ export class SceneManager {
 
         this.config.update()
 
+        this.runSafeLoop(gameObject => gameObject.prestart())
         this.runSafeLoop(gameObject => gameObject.start())
         this.state = State.RUNNING;
         requestAnimationFrame(this.updateSceneRender);
@@ -62,6 +63,7 @@ export class SceneManager {
         this.scene.add(gameObject.group)
         this.gameObjects.push(gameObject);
         if(this.isRunning()) {
+            gameObject.prestart()
             gameObject.start()
         }
         return gameObject;

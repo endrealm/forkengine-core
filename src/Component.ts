@@ -14,6 +14,10 @@ export class Component {
         return this.gameObject;
     }
 
+    public prestart() {
+
+    }
+
     public start() {
         // Run start in all components
     }
