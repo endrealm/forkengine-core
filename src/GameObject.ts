@@ -18,6 +18,10 @@ export class GameObject {
     public readonly transform: TransformComponent;
 
 
+    private readonly children: GameObject[] = []
+    private parent: GameObject | null = null;
+
+
     /*
      *  used to track transformation updated by the mouse event handler.
      * if game object is not intendet to interact with mouse, this can be ignored
@@ -36,8 +40,8 @@ export class GameObject {
     /**
      * Adds a component to the gameobject if not already added.
      * Will throw an error if component is already attached to another gameobject
-     * @param component 
-     * @returns 
+     * @param component
+     * @returns
      */
     public addComponent(component: Component) {
 
@@ -107,7 +111,7 @@ export class GameObject {
     }
 
     public update(delta: number) {
-        
+
         // Run update in all components
         this.runSafeLoop(component => {
             component.update(delta);
@@ -139,5 +143,50 @@ export class GameObject {
 
     public mouseHandlerUpdateNeeded() {
         return this.mouseHandlerNeedsUpdate
+    }
+
+    public addChild(gameObject: GameObject): GameObject {
+        const index = this.children.indexOf(gameObject);
+        if(index !== -1) return gameObject;
+
+        this.children.push(gameObject)
+        this.group.add(gameObject.group)
+        gameObject.setParent(gameObject)
+
+        if(gameObject.state === State.STOPPED) {
+            gameObject = this.getScene().addGameObject(gameObject)
+        }
+
+        return gameObject;
+    }
+    public removeChild(gameObject: GameObject): GameObject {
+
+        const index = this.children.indexOf(gameObject);
+        if(index === -1) return gameObject;
+        this.children.splice(index, 1)
+        this.group.remove(gameObject.group)
+        gameObject.setParent(null)
+        return gameObject;
+    }
+
+    public setParent(gameObject: GameObject | null) {
+        if (this.parent === gameObject) {
+            return;
+        }
+        const oldParent = this.parent;
+        this.parent = null;
+        oldParent?.removeChild(this);
+
+        if(gameObject === null) {
+            // Re-add to scene
+            this.getScene().getActiveScene().add(this.group)
+        }
+
+        this.parent = gameObject;
+        this.parent?.addChild(this);
+    }
+
+    public getParent() {
+        return this.parent;
     }
 }

@@ -60,7 +60,9 @@ export class SceneManager {
 
 
         gameObject["scene"] = this;
-        this.scene.add(gameObject.group)
+        if(!gameObject.getParent()) {
+            this.scene.add(gameObject.group)
+        }
         this.gameObjects.push(gameObject);
         if(this.isRunning()) {
             gameObject.prestart()
@@ -75,12 +77,14 @@ export class SceneManager {
             console.warn("Attempted to remove game object that isnt in the scene")
             return;
         }
-        
+
         this.gameObjects.splice(index, 1)
         if(this.isRunning()) {
             gameObject.stop()
         }
+        gameObject.setParent(null)
         gameObject["scene"] = undefined;
+        this.scene.remove(gameObject.group) // remove if present
     }
 
     private then = 0;
@@ -97,7 +101,7 @@ export class SceneManager {
         this.runSafeLoop(gameObject => gameObject.preUpdate(deltaTime))
         this.runSafeLoop(gameObject => gameObject.update(deltaTime))
         this.runSafeLoop(gameObject => gameObject.postUpdate(deltaTime))
-        
+
     }
 
     public shutdown() {
