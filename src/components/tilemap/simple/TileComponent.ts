@@ -1,20 +1,20 @@
 import {Component} from "../../../Component";
-import {BoxGeometry, Mesh, MeshStandardMaterial, PlaneBufferGeometry} from "three";
+import {BoxGeometry, BufferGeometry, Mesh, MeshStandardMaterial, PlaneBufferGeometry} from "three";
+import {Geometry} from "three/examples/jsm/deprecated/Geometry";
 
-const TILE_GEOMETRY = new BoxGeometry(300, 300, 300) // new PlaneBufferGeometry(1, 1);
+
 const TILE_MATERIAL = new MeshStandardMaterial({color: 0x0000ff})
 
 export class TileComponent extends Component {
 
 
-    private mesh: Mesh
+    private readonly mesh: Mesh
 
 
-    constructor (
-    ) {
+    constructor (private readonly geometry: BufferGeometry) {
         super("TileComponent");
 
-        this.mesh = new Mesh(TILE_GEOMETRY, TILE_MATERIAL)
+        this.mesh = new Mesh(geometry, TILE_MATERIAL)
     }
 
     public setTile() {
