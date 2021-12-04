@@ -1,9 +1,11 @@
 import {Component} from "../../../Component";
-import {BoxGeometry, BufferGeometry, Mesh, MeshStandardMaterial, PlaneBufferGeometry} from "three";
+import {BoxGeometry, BufferGeometry, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry} from "three";
 import {Geometry} from "three/examples/jsm/deprecated/Geometry";
 
 
-const TILE_MATERIAL = new MeshStandardMaterial({color: 0x0000ff})
+const TILE_MATERIAL = new MeshBasicMaterial({
+    color: 0x0000ff,
+})
 
 export class TileComponent extends Component {
 
