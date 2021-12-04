@@ -14,7 +14,7 @@ export class GameObject {
     private state = State.STOPPED;
 
     private scene?: SceneManager;
-    public group = new Group;
+    public group: Group & {gameObject?: GameObject} = new Group;
     public readonly transform: TransformComponent;
 
 
@@ -29,6 +29,7 @@ export class GameObject {
     private mouseHandlerNeedsUpdate: boolean = true
 
     constructor() {
+        this.group["gameObject"] = this;
         this.transform = new TransformComponent();
         this.addComponent(this.transform)
     }
