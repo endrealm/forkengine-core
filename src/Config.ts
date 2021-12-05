@@ -67,6 +67,7 @@ export class SceneConfig {
             camera.right = dim.width / 2
             camera.top = dim.height / 2
             camera.bottom = dim.height / -2
+            camera.updateProjectionMatrix()
         }
     }
 

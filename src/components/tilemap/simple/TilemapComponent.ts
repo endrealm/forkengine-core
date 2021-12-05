@@ -1,7 +1,27 @@
 import {Component} from "../../../Component";
 import {TileComponent} from "./TileComponent";
 import {GameObject} from "../../../GameObject";
-import {BufferGeometry, PlaneBufferGeometry, Vector3} from "three";
+import {BufferGeometry, PlaneBufferGeometry, Texture, Vector3} from "three";
+import {BehaviorSubject} from "rx";
+
+
+
+export interface ITextureAtlas {
+
+    getTextureById(id: number): Texture
+
+}
+
+
+export type TilemapState = {
+    [x: number]: {
+        [y: number]: {
+            textureAtlas: ITextureAtlas,
+            index: number
+        }
+    }
+}
+
 
 export class TilemapComponent extends Component {
 
@@ -13,8 +33,10 @@ export class TilemapComponent extends Component {
     constructor (
         private readonly width: number,
         private readonly height: number,
+        private readonly state: BehaviorSubject<TilemapState>,
         private readonly tileSizeX: number = 100,
-        private readonly tileSizeY: number = 100
+        private readonly tileSizeY: number = 100,
+
     ) {
         super("TilemapComponent");
 
@@ -30,16 +52,16 @@ export class TilemapComponent extends Component {
     }
 
     private generateTiles() {
-
         for (let x = 0; x < this.width; x++) {
             const row: TileComponent[] = [];
             this.tileMatrix.push(row)
 
             for (let y = 0; y < this.height; y++) {
-                const tile = new TileComponent(this.tileGeometry);
+                const tile = new TileComponent(this.tileGeometry, this.state, x, y);
                 this.getGameObject().getScene().addGameObject(new GameObject())
                     .addComponent(tile)
-                    .transform.position.set(x * this.tileSizeX, -y * this.tileSizeY, 0)
+                    .transform.position.set(x * this.tileSizeX,
+                    -y * this.tileSizeY, 0)
                 row.push(tile)
             }
         }
