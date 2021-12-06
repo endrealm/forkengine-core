@@ -11,6 +11,7 @@ export interface ITextureAtlas {
 
     getTexture(): Texture
     getUVCoords(tile: Vector2D, position: Vector2D): Vector2D
+    getTilePos(index: number): Vector2D
 
 }
 
@@ -59,7 +60,7 @@ export class TilemapComponent extends Component {
                 this.getGameObject().getScene().addGameObject(new GameObject())
                     .addComponent(tile)
                     .transform.position.set(x * this.tileSizeX,
-                    -y * this.tileSizeY, 0)
+                    y * this.tileSizeY, 0)
                 row.push(tile)
             }
         }

@@ -77,10 +77,12 @@ export class TileComponent extends Component {
             if(textureAtlas && index !== undefined) {
                 this.mesh.material = TILE_TEXTURE_MATERIAL(textureAtlas.getTexture())
 
-                const uv0 = textureAtlas.getUVCoords(new Vector2D(index, 0), new Vector2D(0, 1))
-                const uv1 = textureAtlas.getUVCoords(new Vector2D(index, 0), new Vector2D(1, 1))
-                const uv2 = textureAtlas.getUVCoords(new Vector2D(index, 0), new Vector2D(0, 0))
-                const uv3 = textureAtlas.getUVCoords(new Vector2D(index, 0), new Vector2D(1, 0))
+                const tile = textureAtlas.getTilePos(index)
+
+                const uv0 = textureAtlas.getUVCoords(tile, new Vector2D(0, 1))
+                const uv1 = textureAtlas.getUVCoords(tile, new Vector2D(1, 1))
+                const uv2 = textureAtlas.getUVCoords(tile, new Vector2D(0, 0))
+                const uv3 = textureAtlas.getUVCoords(tile, new Vector2D(1, 0))
 
                 const quad_uvs =
                     [
