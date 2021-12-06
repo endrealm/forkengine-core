@@ -1,7 +1,7 @@
 import {Component} from "../../../Component";
 import {
     BoxGeometry, BufferAttribute,
-    BufferGeometry,
+    BufferGeometry, Color,
     Mesh,
     MeshBasicMaterial,
     MeshStandardMaterial,
@@ -17,10 +17,12 @@ import {Vector2D} from "../../../util/Vector";
 const TILE_TEXTURE_MATERIAL = (texture: Texture) => new MeshBasicMaterial({
     color: 0xffffff,
     map: texture,
+    transparent: true
 })
 
 const TILE_FILL_MATERIAL = new MeshBasicMaterial({
-    color: 0xff0000,
+    color: 0xffffff,
+    transparent: true
 })
 
 export class TileComponent extends Component {
