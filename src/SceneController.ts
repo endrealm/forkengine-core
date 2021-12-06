@@ -7,4 +7,6 @@ export interface ISceneController {
 
     initialize(sceneManager: SceneManager): void
 
+    dispose(): void
+
 }

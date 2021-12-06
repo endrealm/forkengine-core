@@ -5,7 +5,7 @@ import {
 import { GameObject } from './GameObject';
 import {SceneConfig} from "./Config";
 import {ISceneController} from "./SceneController";
-import {MouseEventHandler} from "./MouseEventHandler";
+
 
 enum State {
     PRE_INIT,
@@ -21,13 +21,11 @@ export class SceneManager {
 
     private camera: {cameraRef?: Camera} = {}
 
-    private mouseEventHandler: {mouseHandlerRef?: MouseEventHandler} = {}
-
     private readonly config: SceneConfig;
 
 
     constructor(private readonly sceneController: ISceneController) {
-        this.config = new SceneConfig(this.camera, this.mouseEventHandler)
+        this.config = new SceneConfig(this.camera)
         this.updateSceneRender = this.updateSceneRender.bind(this);
     }
 
@@ -64,7 +62,7 @@ export class SceneManager {
             this.scene.add(gameObject.group)
         }
         this.gameObjects.push(gameObject);
-        if(this.isRunning()) {
+        if(this.isRunning( )) {
             gameObject.prestart()
             gameObject.start()
         }
@@ -136,23 +134,6 @@ export class SceneManager {
 
     public getConfig() {
         return this.config
-    }
-
-
-    public setEnableMouseEvents(mouseEvents: boolean) {
-        if(mouseEvents) {
-            this.mouseEventHandler.mouseHandlerRef = new MouseEventHandler(this.camera, this.sceneController.createCamera, this.config)
-        } else {
-            this.mouseEventHandler.mouseHandlerRef = undefined
-        }
-    }
-
-    public mouseEventsEnabled(): boolean {
-        return !!(this.mouseEventHandler.mouseHandlerRef)
-    }
-
-    public getMouseEventHandler() {
-        return this.mouseEventHandler.mouseHandlerRef
     }
 
 }
