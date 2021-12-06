@@ -3,12 +3,14 @@ import {TileComponent} from "./TileComponent";
 import {GameObject} from "../../../GameObject";
 import {BufferGeometry, PlaneBufferGeometry, Texture, Vector3} from "three";
 import {BehaviorSubject} from "rx";
+import {Vector2D} from "../../../util/Vector";
 
 
 
 export interface ITextureAtlas {
 
-    getTextureById(id: number): Texture
+    getTexture(): Texture
+    getUVCoords(tile: Vector2D, position: Vector2D): Vector2D
 
 }
 
@@ -27,8 +29,6 @@ export class TilemapComponent extends Component {
 
     public readonly tileMatrix: TileComponent[][] = [];
 
-    private readonly tileGeometry: BufferGeometry
-
 
     constructor (
         private readonly width: number,
@@ -39,8 +39,6 @@ export class TilemapComponent extends Component {
 
     ) {
         super("TilemapComponent");
-
-        this.tileGeometry = new PlaneBufferGeometry(tileSizeX, tileSizeY);
     }
 
     prestart() {
@@ -57,7 +55,7 @@ export class TilemapComponent extends Component {
             this.tileMatrix.push(row)
 
             for (let y = 0; y < this.height; y++) {
-                const tile = new TileComponent(this.tileGeometry, this.state, x, y);
+                const tile = new TileComponent(this.state, x, y, this.tileSizeX, this.tileSizeY);
                 this.getGameObject().getScene().addGameObject(new GameObject())
                     .addComponent(tile)
                     .transform.position.set(x * this.tileSizeX,
