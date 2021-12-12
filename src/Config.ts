@@ -1,5 +1,6 @@
 import {BehaviorSubject, IDisposable, Observable, Subject } from "rx";
-import {Camera, OrthographicCamera, PerspectiveCamera} from "three";
+import {Camera, OrthographicCamera, PerspectiveCamera, Vector3} from "three";
+import {Vector2D} from "./util/Vector";
 
 
 export type DimensionsType = {
@@ -13,6 +14,8 @@ export class SceneConfig {
     // config subscriptions
     private dimensionsSubscription?: IDisposable
     private dimensions?: BehaviorSubject<DimensionsType>
+
+    private mousePosition?: BehaviorSubject<Vector2D | null>
 
     private clickSubscription?: IDisposable
 
@@ -59,13 +62,27 @@ export class SceneConfig {
     }
 
 
+    setMousePosition(pos: BehaviorSubject<Vector2D | null>) {
+        this.mousePosition = pos
+    }
 
-    // TODO inputs...
+    setClick(click: Observable<Vector2D>) {
+        if(this.clickSubscription) this.clickSubscription.dispose()
 
+        this.clickSubscription = click.subscribe((position) => {
+            // call some events
+        })
+    }
 
     dispose() {
         this.dimensionsSubscription?.dispose()
         this.clickSubscription?.dispose()
+    }
+
+
+    getMousePosition(): Vector2D | null {
+        if(!this.mousePosition) return null
+        return this.mousePosition.getValue()
     }
 
 }
