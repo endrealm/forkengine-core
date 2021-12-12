@@ -3,7 +3,7 @@ import {
     Scene
 } from 'three';
 import { GameObject } from './GameObject';
-import {SceneConfig} from "./Config";
+import {IOAdapter} from "./IOAdapter";
 import {ISceneController} from "./SceneController";
 
 
@@ -21,11 +21,11 @@ export class SceneManager {
 
     private camera: {cameraRef?: Camera} = {}
 
-    private readonly config: SceneConfig;
+    private readonly ioAdapter: IOAdapter;
 
 
     constructor(private readonly sceneController: ISceneController) {
-        this.config = new SceneConfig(this.camera)
+        this.ioAdapter = new IOAdapter(this.camera)
         this.updateSceneRender = this.updateSceneRender.bind(this);
     }
 
@@ -37,7 +37,7 @@ export class SceneManager {
             this.camera.cameraRef = this.sceneController.createCamera()
         }
 
-        this.config.update()
+        this.ioAdapter.update()
 
         this.runSafeLoop(gameObject => gameObject.prestart())
         this.runSafeLoop(gameObject => gameObject.start())
@@ -106,7 +106,7 @@ export class SceneManager {
         this.state = State.STOPPED;
         this.runSafeLoop(gameObject => gameObject.stop())
 
-        this.config.dispose()
+        this.ioAdapter.dispose()
     }
 
     private runSafeLoop(callback: (gameObject: GameObject) => any) {
@@ -132,8 +132,8 @@ export class SceneManager {
         return this.camera.cameraRef
     }
 
-    public getConfig() {
-        return this.config
+    public getIOAdapter() {
+        return this.ioAdapter
     }
 
 }
