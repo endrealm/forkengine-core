@@ -64,16 +64,13 @@ export class IOAdapter {
 
     setMousePosition(pos: BehaviorSubject<Vector2D | null>) {
         this.mousePosition = pos
-        pos.subscribe((position) => {
-            console.log("Moving at ", position)
-        })
     }
 
     setClick(click: Observable<Vector2D>) {
         if(this.clickSubscription) this.clickSubscription.dispose()
 
         this.clickSubscription = click.subscribe((position) => {
-            console.log("Click at ", position.getX, position.getY)
+            // call some events here
         })
     }
 
