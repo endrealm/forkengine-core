@@ -77,8 +77,8 @@ export class GameObject {
         return this;
     }
 
-    getComponent(typeName: string): Component | undefined {
-        return this.components.find(component => component.typeName)
+    getComponents<ComponentType extends Component>(typeName: string): ComponentType[] {
+        return this.components.filter(component => component.typeName === typeName) as ComponentType[]
     }
 
     public prestart() {
