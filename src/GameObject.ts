@@ -152,13 +152,16 @@ export class GameObject {
 
         this.children.push(gameObject)
         this.group.add(gameObject.group)
-        gameObject.setParent(gameObject)
+        gameObject.setParent(gameObject, true)
 
         if(gameObject.state === State.STOPPED) {
             gameObject = this.getScene().addGameObject(gameObject)
         }
 
         return gameObject;
+    }
+    public getChildren(): GameObject[] {
+        return this.children;
     }
     public removeChild(gameObject: GameObject): GameObject {
 
@@ -170,7 +173,7 @@ export class GameObject {
         return gameObject;
     }
 
-    public setParent(gameObject: GameObject | null) {
+    public setParent(gameObject: GameObject | null, alreadyAdded = false) {
         if (this.parent === gameObject) {
             return;
         }
@@ -184,7 +187,8 @@ export class GameObject {
         }
 
         this.parent = gameObject;
-        this.parent?.addChild(this);
+        if(!alreadyAdded)
+            this.parent?.addChild(this);
     }
 
     public getParent() {

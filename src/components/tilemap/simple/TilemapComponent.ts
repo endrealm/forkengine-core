@@ -38,6 +38,8 @@ export class TilemapComponent extends Component {
         private readonly tileSizeX: number = 100,
         private readonly tileSizeY: number = 100,
 
+        private readonly createTileComponents: (x: number, y: number) => Component[] = () => []
+
     ) {
         super("TilemapComponent");
     }
@@ -57,10 +59,10 @@ export class TilemapComponent extends Component {
 
             for (let y = 0; y < this.height; y++) {
                 const tile = new TileComponent(this.state, x, y, this.tileSizeX, this.tileSizeY);
-                this.getGameObject().getScene().addGameObject(new GameObject())
-                    .addComponent(tile)
-                    .transform.position.set(x * this.tileSizeX,
-                    y * this.tileSizeY, 0)
+                const tileObject = this.getGameObject().addChild(new GameObject())
+                    .addComponent(tile);
+                tileObject.transform.position.set(x * this.tileSizeX, y * this.tileSizeY, 0)
+                this.createTileComponents(x, y).forEach(component => tileObject.addComponent(component))
                 row.push(tile)
             }
         }
