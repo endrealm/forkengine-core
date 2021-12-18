@@ -17,7 +17,8 @@ export class IOAdapter {
 
     private mousePosition?: BehaviorSubject<Vector2D | null>
 
-    private clickSubscription?: IDisposable
+    private clickSubscription?: IDisposable;
+    private _click: Subject<Vector2D> = new Subject()
 
 
     constructor(private readonly camera: {cameraRef?: Camera}) {
@@ -66,12 +67,16 @@ export class IOAdapter {
         this.mousePosition = pos
     }
 
-    setClick(click: Observable<Vector2D>) {
+    set click(click: Observable<Vector2D>) {
         if(this.clickSubscription) this.clickSubscription.dispose()
 
         this.clickSubscription = click.subscribe((position) => {
-            // call some events here
+            this._click.onNext(position)
         })
+    }
+
+    get click(): Observable<Vector2D> {
+        return this._click
     }
 
     dispose() {
