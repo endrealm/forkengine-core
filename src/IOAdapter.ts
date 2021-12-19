@@ -3,10 +3,20 @@ import {Camera, OrthographicCamera, PerspectiveCamera, Vector3} from "three";
 import {Vector2D} from "./util/Vector";
 
 
+export type ClickEvent = {
+    x: number,
+    y: number,
+
+    type: "LEFT" | "RIGHT" | "TOUCH"
+}
+
 export type DimensionsType = {
     width: number,
     height: number
 }
+
+// See https://developer.mozilla.org/de/docs/Web/CSS/cursor for reference
+export type CursorType = "default" |  "auto" | "none" | "pointer" | "wait" | "cell" | "move"
 
 
 export class IOAdapter {
@@ -18,8 +28,9 @@ export class IOAdapter {
     private mousePosition?: BehaviorSubject<Vector2D | null>
 
     private clickSubscription?: IDisposable;
-    private _click: Subject<Vector2D> = new Subject()
+    private _click: Subject<ClickEvent> = new Subject()
 
+    private _setCursorType?: (type: CursorType) => void;
 
     constructor(private readonly camera: {cameraRef?: Camera}) {
 
@@ -67,15 +78,15 @@ export class IOAdapter {
         this.mousePosition = pos
     }
 
-    set click(click: Observable<Vector2D>) {
+    set click(click: Observable<ClickEvent>) {
         if(this.clickSubscription) this.clickSubscription.dispose()
 
-        this.clickSubscription = click.subscribe((position) => {
-            this._click.onNext(position)
+        this.clickSubscription = click.subscribe((event) => {
+            this._click.onNext(event)
         })
     }
 
-    get click(): Observable<Vector2D> {
+    get click(): Observable<ClickEvent> {
         return this._click
     }
 
@@ -88,6 +99,16 @@ export class IOAdapter {
     getMousePosition(): Vector2D | null {
         if(!this.mousePosition) return null
         return this.mousePosition.getValue()
+    }
+
+
+    set setCursorType(setter: (type: CursorType) => void) {
+        this._setCursorType = setter;
+    }
+
+    set cursorType(type: CursorType) {
+        if(!this._setCursorType) return;
+        this._setCursorType(type);
     }
 
 }
