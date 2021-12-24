@@ -1,26 +1,36 @@
 import {Component} from "../../../Component";
-import {TileComponent} from "./TileComponent";
-import {GameObject} from "../../../GameObject";
-import {BufferGeometry, PlaneBufferGeometry, Texture, Vector3} from "three";
+import {
+    BufferGeometry,
+    Material,
+    Mesh, MeshBasicMaterial,
+    PlaneBufferGeometry,
+    RawShaderMaterial,
+    ShaderMaterial,
+    Texture,
+    Vector3
+} from "three";
 import {BehaviorSubject} from "rx";
 import {Vector2D} from "../../../util/Vector";
+import {TilemapFragmentShader, TilemapVertexShader} from "./TilemapShader";
+import {PlaneGeometry} from "../../../geometry/PlaneGeometry";
 
 
 
 export interface ITextureAtlas {
 
     getTexture(): Texture
-    getUVCoords(tile: Vector2D, position: Vector2D): Vector2D
-    getTilePos(index: number): Vector2D
+    getDimension(): Vector2D
 
 }
 
 
 export type TilemapState = {
-    [x: number]: {
-        [y: number]: {
-            textureAtlas: ITextureAtlas,
-            index: number
+    tilesets: ITextureAtlas[],
+    data: {
+        [x: number]: {
+            [y: number]: {
+                index: number
+            }
         }
     }
 }
@@ -29,37 +39,52 @@ export type TilemapState = {
 export class TilemapComponent extends Component {
 
 
+    private readonly mesh: Mesh;
+
     constructor (
         private readonly width: number,
         private readonly height: number,
         private readonly state: BehaviorSubject<TilemapState>,
         private readonly tileSizeX: number = 100,
         private readonly tileSizeY: number = 100,
-
-        private readonly createTileComponents: (x: number, y: number) => Component[] = () => []
-
     ) {
         super("TilemapComponent");
+
+        this.mesh = new Mesh(this.generateGeometry(width, height, tileSizeX, tileSizeY), this.generateMaterial());
     }
 
     prestart() {
-        this.generateTiles()
+
     }
 
     start() {
+        this.getGameObject().group.add(this.mesh);
+    }
+
+    stop() {
 
     }
 
-    private generateTiles() {
-        for (let x = 0; x < this.width; x++) {
-            for (let y = 0; y < this.height; y++) {
-                const tile = new TileComponent(this.state, x, y, this.tileSizeX, this.tileSizeY);
-                const tileObject = this.getGameObject().addChild(new GameObject())
-                    .addComponent(tile);
-                tileObject.transform.position.set(x * this.tileSizeX, y * this.tileSizeY, 0)
-                this.createTileComponents(x, y).forEach(component => tileObject.addComponent(component))
-            }
-        }
+
+    private generateGeometry(width: number, height: number, tileSizeX: number, tileSizeY: number): BufferGeometry {
+        const geometry = new PlaneGeometry(width, height, tileSizeX, tileSizeY)
+
+        console.log("Position:")
+        console.log(geometry.getAttribute("position"))
+
+        return geometry;
+    }
+
+    private generateMaterial(): Material {
+        /* return new MeshBasicMaterial({
+            wireframe: true,
+            color: 0x000000
+        }) */
+        return new ShaderMaterial({
+            uniforms: {},
+            vertexShader: TilemapVertexShader,
+            fragmentShader: TilemapFragmentShader,
+        })
     }
 
 }
