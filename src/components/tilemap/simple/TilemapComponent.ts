@@ -12,7 +12,7 @@ import {
 import {BehaviorSubject} from "rx";
 import {Vector2D} from "../../../util/Vector";
 import {TilemapFragmentShader, TilemapVertexShader} from "./TilemapShader";
-import {PlaneGeometry} from "../../../geometry/PlaneGeometry";
+import {TilemapGeometry} from "../../../geometry/TilemapGeometry";
 
 
 
@@ -20,6 +20,8 @@ export interface ITextureAtlas {
 
     getTexture(): Texture
     getDimension(): Vector2D
+    getTilePos(index: number): Vector2D
+    getUVCoords(tile: Vector2D, position: Vector2D): Vector2D
 
 }
 
@@ -29,12 +31,12 @@ export type TilemapState = {
     data: {
         [x: number]: {
             [y: number]: {
-                index: number
+                index: number,
+                tilesetIndex: number
             }
         }
     }
 }
-
 
 export class TilemapComponent extends Component {
 
@@ -67,10 +69,10 @@ export class TilemapComponent extends Component {
 
 
     private generateGeometry(width: number, height: number, tileSizeX: number, tileSizeY: number): BufferGeometry {
-        const geometry = new PlaneGeometry(width, height, tileSizeX, tileSizeY)
+        const geometry = new TilemapGeometry(width, height, tileSizeX, tileSizeY)
 
-        console.log("Position:")
-        console.log(geometry.getAttribute("position"))
+        geometry.applyState(this.state.getValue());
+        console.log(geometry.attributes)
 
         return geometry;
     }
