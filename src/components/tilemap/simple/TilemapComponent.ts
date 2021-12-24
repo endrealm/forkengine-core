@@ -72,7 +72,6 @@ export class TilemapComponent extends Component {
         const geometry = new TilemapGeometry(width, height, tileSizeX, tileSizeY)
 
         geometry.applyState(this.state.getValue());
-        console.log(geometry.attributes)
 
         return geometry;
     }
@@ -83,7 +82,9 @@ export class TilemapComponent extends Component {
             color: 0x000000
         }) */
         return new ShaderMaterial({
-            uniforms: {},
+            uniforms: {
+                tileset: {value: this.state.getValue().tilesets[0].getTexture()}
+            },
             vertexShader: TilemapVertexShader,
             fragmentShader: TilemapFragmentShader,
         })
