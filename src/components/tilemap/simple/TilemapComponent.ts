@@ -28,8 +28,6 @@ export type TilemapState = {
 
 export class TilemapComponent extends Component {
 
-    public readonly tileMatrix: TileComponent[][] = [];
-
 
     constructor (
         private readonly width: number,
@@ -54,16 +52,12 @@ export class TilemapComponent extends Component {
 
     private generateTiles() {
         for (let x = 0; x < this.width; x++) {
-            const row: TileComponent[] = [];
-            this.tileMatrix.push(row)
-
             for (let y = 0; y < this.height; y++) {
                 const tile = new TileComponent(this.state, x, y, this.tileSizeX, this.tileSizeY);
                 const tileObject = this.getGameObject().addChild(new GameObject())
                     .addComponent(tile);
                 tileObject.transform.position.set(x * this.tileSizeX, y * this.tileSizeY, 0)
                 this.createTileComponents(x, y).forEach(component => tileObject.addComponent(component))
-                row.push(tile)
             }
         }
     }

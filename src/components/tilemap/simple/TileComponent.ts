@@ -12,6 +12,7 @@ import {Geometry} from "three/examples/jsm/deprecated/Geometry";
 import {BehaviorSubject, IDisposable} from "rx";
 import {ITextureAtlas, TilemapState} from "./TilemapComponent";
 import {Vector2D} from "../../../util/Vector";
+import {SkeletonUtils} from "three/examples/jsm/utils/SkeletonUtils";
 
 
 const TILE_TEXTURE_MATERIAL = (texture: Texture) => new MeshBasicMaterial({
@@ -28,12 +29,11 @@ const TILE_FILL_MATERIAL = new MeshBasicMaterial({
 export class TileComponent extends Component {
 
 
-    private readonly geometry: BufferGeometry
-    private readonly mesh: Mesh
+    private mesh: Mesh | undefined;
     private readonly subscription: IDisposable
 
-    private currentTextureAtlas?: ITextureAtlas
-    private currentIndex?: number
+    private currentTextureAtlas: ITextureAtlas | undefined
+    private currentIndex: number | undefined
 
     constructor (   private readonly state: BehaviorSubject<TilemapState>,
                     private readonly positionX: number,
@@ -42,27 +42,37 @@ export class TileComponent extends Component {
                     private readonly tileSizeY: number = 50) {
         super("TileComponent");
 
-        // use one width and height segment so its easier overwriting the uvs
-        this.geometry = new PlaneBufferGeometry(tileSizeX, tileSizeY, 1, 1);
-
-        this.mesh = new Mesh(this.geometry, TILE_FILL_MATERIAL)
-        this.updateTexture(state.getValue())
+        delete this.mesh;
+        delete this.currentTextureAtlas;
+        delete this.currentIndex;
         this.subscription = state.subscribe(this.updateTexture)
     }
 
 
     start() {
         super.start();
-        this.getGameObject().group.add(this.mesh)
-        this.getGameObject().setMouseHandlerNeedsUpdate(true)
+        this.updateTexture(this.state.getValue())
     }
 
     stop() {
         super.stop()
-
-
     }
 
+    private createMeshInstance() {
+        if(!this.mesh) {
+            // use one width and height segment so its easier overwriting the uvs
+            const geometry = new PlaneBufferGeometry(this.tileSizeX, this.tileSizeY, 1, 1);
+            this.mesh = new Mesh(geometry)
+            this.getGameObject().group.add(this.mesh)
+        }
+    }
+
+    private deleteMeshInstance() {
+        if(this.mesh) {
+            this.getGameObject().group.remove(this.mesh);
+            delete this.mesh;
+        }
+    }
 
     private updateTexture(newState: TilemapState) {
         let textureAtlas;
@@ -77,7 +87,9 @@ export class TileComponent extends Component {
 
         if(this.currentTextureAtlas !== textureAtlas || this.currentIndex !== index) {
             if(textureAtlas && index !== undefined) {
-                this.mesh.material = TILE_TEXTURE_MATERIAL(textureAtlas.getTexture())
+                this.createMeshInstance();
+
+                this.mesh!.material = TILE_TEXTURE_MATERIAL(textureAtlas.getTexture())
 
                 const tile = textureAtlas.getTilePos(index)
 
@@ -94,18 +106,22 @@ export class TileComponent extends Component {
                         uv3.getX, uv3.getY
                     ];
                 const uvs = new Float32Array( quad_uvs);
-                this.geometry.setAttribute( 'uv', new BufferAttribute( uvs, 2 ) );
-            } else {
-                this.mesh.material = TILE_FILL_MATERIAL
-            }
+                this.mesh!.geometry.setAttribute( 'uv', new BufferAttribute( uvs, 2 ) );
 
-            this.currentIndex = index
-            this.currentTextureAtlas = textureAtlas
+                this.currentIndex = index
+                this.currentTextureAtlas = textureAtlas
+            } else {
+                this.deleteMeshInstance();
+
+                delete this.currentIndex;
+                delete this.currentTextureAtlas;
+            }
         }
     }
 
 
     setColor(color: Color) {
+        if(!this.mesh) return;
         (this.mesh.material as MeshBasicMaterial).color = color;
     }
 

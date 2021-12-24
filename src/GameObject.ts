@@ -138,14 +138,6 @@ export class GameObject {
     }
 
 
-    public setMouseHandlerNeedsUpdate(update: boolean) {
-        this.mouseHandlerNeedsUpdate = update
-    }
-
-    public mouseHandlerUpdateNeeded() {
-        return this.mouseHandlerNeedsUpdate
-    }
-
     public addChild(gameObject: GameObject): GameObject {
         const index = this.children.indexOf(gameObject);
         if(index !== -1) return gameObject;

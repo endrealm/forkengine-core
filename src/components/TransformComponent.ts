@@ -12,7 +12,6 @@ export class TransformComponent extends Component {
 
     set position (value: Vector3) {
         this._position = value;
-        this.getGameObject().setMouseHandlerNeedsUpdate(true)
     }
 
     get worldPosition () {
@@ -21,7 +20,6 @@ export class TransformComponent extends Component {
 
     set worldPosition (value: Vector3) {
         this.position = value;
-        this.getGameObject().setMouseHandlerNeedsUpdate(true)
     }
 
     get rotation () {
@@ -30,7 +28,6 @@ export class TransformComponent extends Component {
 
     set rotation (value: Quaternion) {
         this._rotation = value;
-        this.getGameObject().setMouseHandlerNeedsUpdate(true)
     }
 
     get worldRotation () {
@@ -39,7 +36,6 @@ export class TransformComponent extends Component {
 
     set worldRotation (value: Quaternion) {
         this.rotation = value;
-        this.getGameObject().setMouseHandlerNeedsUpdate(true)
     }
 
     constructor() {

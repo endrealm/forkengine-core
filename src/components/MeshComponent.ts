@@ -11,7 +11,6 @@ export class MeshComponent extends Component {
 
     start() {
         this.getGameObject().group.add(this.mesh);
-        this.getGameObject().setMouseHandlerNeedsUpdate(true)
     }
     
 }

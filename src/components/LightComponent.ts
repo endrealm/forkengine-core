@@ -10,7 +10,6 @@ export class LightComponent<T extends Light> extends Component {
 
     start() {
         this.getGameObject().group.add(this.light);
-        this.getGameObject().setMouseHandlerNeedsUpdate(true)
     }
 }
 
