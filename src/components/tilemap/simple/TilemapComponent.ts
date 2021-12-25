@@ -83,10 +83,11 @@ export class TilemapComponent extends Component {
         }) */
         return new ShaderMaterial({
             uniforms: {
-                tileset: {value: this.state.getValue().tilesets[0].getTexture()}
+                tilesets: {value: this.state.getValue().tilesets.map(tileset => tileset.getTexture())}
             },
             vertexShader: TilemapVertexShader,
             fragmentShader: TilemapFragmentShader,
+            transparent: true
         })
     }
 

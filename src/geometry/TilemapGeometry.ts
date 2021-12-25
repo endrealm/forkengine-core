@@ -1,4 +1,4 @@
-import {BufferAttribute, BufferGeometry} from "three";
+import {BufferAttribute, BufferGeometry, Float32BufferAttribute, Int32BufferAttribute} from "three";
 import {TilemapState} from "../components/tilemap/simple/TilemapComponent";
 import {Vector2D} from "../util/Vector";
 
@@ -16,6 +16,7 @@ export class TilemapGeometry extends BufferGeometry {
         super();
 
         const positions: number[] = [];
+        // const normals: number[] = [];
 
         for(let x = 0; x < segmentsX; x++) {
             for(let y = 0; y < segmentsY; y++) {
@@ -34,7 +35,16 @@ export class TilemapGeometry extends BufferGeometry {
             }
         }
 
-        this.setAttribute("position", new BufferAttribute(new Float32Array(positions), 3, false))
+        /*
+        // foreach vertex
+        for(let i = 0; i < segmentsX * segmentsY * 2 * 3 * 3; i++) {
+            normals.push(0);
+        }
+        */
+
+
+        this.setAttribute("position", new Float32BufferAttribute(positions, 3, false))
+        // this.setAttribute("normal", new BufferAttribute(new Float32Array(normals), 3, false))
     }
 
     applyState(tilemapState: TilemapState) {
@@ -83,8 +93,8 @@ export class TilemapGeometry extends BufferGeometry {
             }
         }
 
-        this.setAttribute("uv", new BufferAttribute(new Float32Array(uvs), 2, false))
-        this.setAttribute("textureIDs", new BufferAttribute(new Uint32Array(textureIDs), 1, false))
+        this.setAttribute("uv", new Float32BufferAttribute(uvs, 2))
+        this.setAttribute("tilesetID", new Int32BufferAttribute(textureIDs, 1))
     }
 
 }
