@@ -1,45 +1,33 @@
 /*
 
-uniform sampler2D tilesets[3];
+#define MAX_TILESETS 3
+#define TILESET(id) if(vTilesetID == id){ gl_FragColor = texture2D(tilesets[id], vTextureCoords); return; }
+
+uniform sampler2D tilesets[MAX_TILESETS];
 
 in vec2 vTextureCoords;
 flat in int vTilesetID;
 
 void main() {
-    if(vTilesetID == 0) {
-        gl_FragColor = texture2D(tilesets[0], vTextureCoords);
-        return;
-    }
-    if(vTilesetID == 1) {
-        gl_FragColor = texture2D(tilesets[1], vTextureCoords);
-        return;
-    }
-    if(vTilesetID == 2) {
-        gl_FragColor = texture2D(tilesets[2], vTextureCoords);
-        return;
-    }
+    TILESET(0)
+    TILESET(1)
+    TILESET(2)
     gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
 }
  */
 export const TilemapFragmentShader =
-    "uniform sampler2D tilesets[3];\n" +
+    "#define MAX_TILESETS 3\n" +
+    "#define TILESET(id) if(vTilesetID == id){ gl_FragColor = texture2D(tilesets[id], vTextureCoords); return; }\n" +
+    "\n" +
+    "uniform sampler2D tilesets[MAX_TILESETS];\n" +
     "\n" +
     "in vec2 vTextureCoords;\n" +
     "flat in int vTilesetID;\n" +
     "\n" +
     "void main() {\n" +
-    "    if(vTilesetID == 0) {\n" +
-    "        gl_FragColor = texture2D(tilesets[0], vTextureCoords);\n" +
-    "        return;\n" +
-    "    }\n" +
-    "    if(vTilesetID == 1) {\n" +
-    "        gl_FragColor = texture2D(tilesets[1], vTextureCoords);\n" +
-    "        return;\n" +
-    "    }\n" +
-    "    if(vTilesetID == 2) {\n" +
-    "        gl_FragColor = texture2D(tilesets[2], vTextureCoords);\n" +
-    "        return;\n" +
-    "    }\n" +
+    "    TILESET(0)\n" +
+    "    TILESET(1)\n" +
+    "    TILESET(2)\n" +
     "    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);\n" +
     "}";
 
