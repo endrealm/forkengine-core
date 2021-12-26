@@ -1,18 +1,14 @@
 import {Component} from "../../../Component";
 import {
-    BufferGeometry,
-    Material,
-    Mesh, MeshBasicMaterial,
-    PlaneBufferGeometry,
-    RawShaderMaterial,
+    Mesh,
     ShaderMaterial,
     Texture,
-    Vector3
 } from "three";
-import {BehaviorSubject} from "rx";
+import {BehaviorSubject, IDisposable} from "rx";
 import {Vector2D} from "../../../util/Vector";
 import {TilemapFragmentShader, TilemapVertexShader} from "./TilemapShader";
 import {TilemapGeometry} from "../../../geometry/TilemapGeometry";
+import {Tile} from "./Tile";
 
 
 
@@ -42,6 +38,11 @@ export class TilemapComponent extends Component {
 
 
     private readonly mesh: Mesh;
+    private readonly geometry: TilemapGeometry;
+    private readonly material: ShaderMaterial;
+
+    private readonly stateSubscription: IDisposable;
+
 
     constructor (
         private readonly width: number,
@@ -49,10 +50,21 @@ export class TilemapComponent extends Component {
         private readonly state: BehaviorSubject<TilemapState>,
         private readonly tileSizeX: number = 100,
         private readonly tileSizeY: number = 100,
+
+        private readonly onTileClick: (tile: Tile) => void = () => undefined,
+        private readonly onTileHoverStart: (tile: Tile) => void = () => undefined,
+        private readonly onTileHoverEnd: (tile: Tile) => void = () => undefined,
     ) {
         super("TilemapComponent");
 
-        this.mesh = new Mesh(this.generateGeometry(width, height, tileSizeX, tileSizeY), this.generateMaterial());
+        this.geometry = this.generateGeometry(width, height, tileSizeX, tileSizeY);
+        this.material = this.generateMaterial();
+        this.mesh = new Mesh(this.geometry, this.material);
+
+        this.stateSubscription = state.subscribe(change => {
+            this.material.uniforms.tilesets = {value: change.tilesets.map(tileset => tileset.getTexture())}
+            this.geometry.applyState(change);
+        })
     }
 
     prestart() {
@@ -64,11 +76,11 @@ export class TilemapComponent extends Component {
     }
 
     stop() {
-
+        this.stateSubscription.dispose();
     }
 
 
-    private generateGeometry(width: number, height: number, tileSizeX: number, tileSizeY: number): BufferGeometry {
+    private generateGeometry(width: number, height: number, tileSizeX: number, tileSizeY: number): TilemapGeometry {
         const geometry = new TilemapGeometry(width, height, tileSizeX, tileSizeY)
 
         geometry.applyState(this.state.getValue());
@@ -76,11 +88,7 @@ export class TilemapComponent extends Component {
         return geometry;
     }
 
-    private generateMaterial(): Material {
-        /* return new MeshBasicMaterial({
-            wireframe: true,
-            color: 0x000000
-        }) */
+    private generateMaterial(): ShaderMaterial {
         return new ShaderMaterial({
             uniforms: {
                 tilesets: {value: this.state.getValue().tilesets.map(tileset => tileset.getTexture())}
@@ -89,6 +97,31 @@ export class TilemapComponent extends Component {
             fragmentShader: TilemapFragmentShader,
             transparent: true
         })
+    }
+
+
+    getTile(x: number, y: number): Tile {
+        return new Tile(x, y, this, this.onTileClick, this.onTileHoverStart, this.onTileHoverEnd);
+    }
+
+    /**
+     * Takes x, y coordinates and returns the correct tile.
+     * Assumes this tilemap is not rotated
+     * Assumes this tilemap is only translated by its immediate game object
+     * Assumes this tilemap is not scaled
+     * @param x x coordinate
+     * @param y y coordinate
+     */
+    getTileByCoordinates(x: number, y: number): Tile | undefined {
+        const absolutePosition = new Vector2D(x, y).sub(Vector2D.fromVector3(this.getGameObject().transform.position));
+        absolutePosition.div(new Vector2D(this.tileSizeX, this.tileSizeY));
+
+        // out-of-bounds
+        if(absolutePosition.getX > this.width || absolutePosition.getY > this.height || absolutePosition.getX < 0 || absolutePosition.getY < 0) return undefined;
+
+        absolutePosition.divWithoutRemainder(new Vector2D(1, 1));
+
+        return this.getTile(absolutePosition.getX, absolutePosition.getY);
     }
 
 }
