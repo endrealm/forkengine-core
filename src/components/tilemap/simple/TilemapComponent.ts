@@ -2,13 +2,14 @@ import {Component} from "../../../Component";
 import {
     Mesh,
     ShaderMaterial,
-    Texture,
+    Texture, Vector3, Vector4,
 } from "three";
 import {BehaviorSubject, IDisposable} from "rx";
 import {Vector2D} from "../../../util/Vector";
 import {TilemapFragmentShader, TilemapVertexShader} from "./TilemapShader";
-import {TilemapGeometry} from "../../../geometry/TilemapGeometry";
+import {DEFAULT_TINT, TilemapGeometry} from "../../../geometry/TilemapGeometry";
 import {Tile} from "./Tile";
+import {TilemapTint} from "./TilemapTint";
 
 
 
@@ -34,6 +35,16 @@ export type TilemapState = {
     }
 }
 
+
+export type TintStorage = {
+    [x: number]: {
+        [y: number]: {
+            tintID: number
+        }
+    }
+}
+
+
 export class TilemapComponent extends Component {
 
 
@@ -42,6 +53,8 @@ export class TilemapComponent extends Component {
     private readonly material: ShaderMaterial;
 
     private readonly stateSubscription: IDisposable;
+
+    private readonly tint: TintStorage = {}
 
 
     constructor (
@@ -54,6 +67,8 @@ export class TilemapComponent extends Component {
         private readonly onTileClick: (tile: Tile) => void = () => undefined,
         private readonly onTileHoverStart: (tile: Tile) => void = () => undefined,
         private readonly onTileHoverEnd: (tile: Tile) => void = () => undefined,
+
+        private readonly tints: (Vector3 | Vector4)[] = TilemapTint.DefaultColorPalette
     ) {
         super("TilemapComponent");
 
@@ -84,6 +99,7 @@ export class TilemapComponent extends Component {
         const geometry = new TilemapGeometry(width, height, tileSizeX, tileSizeY)
 
         geometry.applyState(this.state.getValue());
+        geometry.applyTint(this.tint);
 
         return geometry;
     }
@@ -91,7 +107,8 @@ export class TilemapComponent extends Component {
     private generateMaterial(): ShaderMaterial {
         return new ShaderMaterial({
             uniforms: {
-                tilesets: {value: this.state.getValue().tilesets.map(tileset => tileset.getTexture())}
+                tilesets: {value: this.state.getValue().tilesets.map(tileset => tileset.getTexture())},
+                tints: {value: this.tints}
             },
             vertexShader: TilemapVertexShader,
             fragmentShader: TilemapFragmentShader,
@@ -101,7 +118,7 @@ export class TilemapComponent extends Component {
 
 
     getTile(x: number, y: number): Tile {
-        return new Tile(x, y, this, this.onTileClick, this.onTileHoverStart, this.onTileHoverEnd);
+        return new Tile(x, y, this, this.onTileClick, this.onTileHoverStart, this.onTileHoverEnd, this.getTint.bind(this), this.setTint.bind(this));
     }
 
     /**
@@ -122,6 +139,17 @@ export class TilemapComponent extends Component {
         absolutePosition.divWithoutRemainder(new Vector2D(1, 1));
 
         return this.getTile(absolutePosition.getX, absolutePosition.getY);
+    }
+
+
+    private getTint(x: number, y: number): number {
+        return this.tint[x] && this.tint[x][y] ? (this.tint[x][y].tintID|| DEFAULT_TINT) : DEFAULT_TINT
+    }
+
+    private setTint(x: number, y: number, tint: number) {
+        if(!this.tint[x]) this.tint[x] = [];
+        this.tint[x][y] = {tintID: tint}
+        this.geometry.applyTint(this.tint);
     }
 
 }

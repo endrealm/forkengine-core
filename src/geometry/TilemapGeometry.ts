@@ -1,6 +1,9 @@
 import {BufferAttribute, BufferGeometry, Float32BufferAttribute, Int32BufferAttribute} from "three";
-import {TilemapState} from "../components/tilemap/simple/TilemapComponent";
+import {TilemapState, TintStorage} from "../components/tilemap/simple/TilemapComponent";
 import {Vector2D} from "../util/Vector";
+
+
+export const DEFAULT_TINT = 0;
 
 /**
  *  Similar to Three js PlaneBufferGeometry;
@@ -95,6 +98,30 @@ export class TilemapGeometry extends BufferGeometry {
 
         this.setAttribute("uv", new Float32BufferAttribute(uvs, 2))
         this.setAttribute("tilesetID", new Int32BufferAttribute(textureIDs, 1))
+    }
+
+    applyTint(tint: TintStorage) {
+        const tintIDs: number[] = [];
+
+        for(let x = 0; x < this.segmentsX; x++) {
+            for(let y = 0; y < this.segmentsY; y++) {
+                const tintID = tint[x] && tint[x][y] ? (tint[x][y].tintID|| DEFAULT_TINT) : DEFAULT_TINT;
+
+                tintIDs.push(...[
+                    // first face
+                    tintID,
+                    tintID,
+                    tintID,
+
+                    // second face
+                    tintID,
+                    tintID,
+                    tintID,
+                ])
+            }
+        }
+
+        this.setAttribute("tintID", new Int32BufferAttribute(tintIDs, 1))
     }
 
 }

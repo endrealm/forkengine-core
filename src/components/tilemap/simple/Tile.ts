@@ -6,8 +6,6 @@ import {Color} from "three";
  */
 export class Tile {
 
-    private _tint: Color;
-
     constructor(
         private readonly _x: number,
         private readonly _y: number,
@@ -15,10 +13,12 @@ export class Tile {
 
         private readonly _onClick: (tile: Tile) => void,
         private readonly _onHoverStart: (tile: Tile) => void,
-        private readonly _onHoverEnd: (tile: Tile) => void
+        private readonly _onHoverEnd: (tile: Tile) => void,
+
+        private readonly _getTint: (x: number, y: number) => number,
+        private readonly _setTint: (x: number, y: number, tint: number) => void
     ) {
-        // TODO call tilemap methods here
-        this._tint = new Color("white");
+
     }
 
     get x() {
@@ -30,12 +30,11 @@ export class Tile {
     }
 
     get tint() {
-        return this._tint;
+        return this._getTint(this._x, this._y);
     }
 
-    set tint(tint: Color) {
-        this._tint = tint;
-        // TODO call tilemap methods here
+    set tint(tint: number) {
+        this._setTint(this._x, this._y, tint);
     }
 
 
