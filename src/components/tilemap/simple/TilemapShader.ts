@@ -13,6 +13,14 @@ flat in int vTilesetID;
 flat in int vTintID;
 
 void main() {
+
+    if(vTextureCoords.x < 0.0 || vTextureCoords.y < 0.0) {
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+        return;
+    }
+
+    gl_FragColor = vec4(vTilesetID, 0.0, 0.0, 1.0);
+
     vec4 textureColor;
     TILESET(0, textureColor)
     TILESET(1, textureColor)
@@ -46,6 +54,11 @@ export const TilemapFragmentShader =
     "flat in int vTintID;\n" +
     "\n" +
     "void main() {\n" +
+    "    if(vTextureCoords.x < 0.0 || vTextureCoords.y < 0.0) {\n" +
+    "        gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);\n" +
+    "        return;\n" +
+    "    }\n" +
+    "    \n" +
     "    vec4 textureColor;\n" +
     "    TILESET(0, textureColor)\n" +
     "    TILESET(1, textureColor)\n" +
