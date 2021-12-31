@@ -165,6 +165,11 @@ export class GameObject {
         return gameObject;
     }
 
+    public destroy(): GameObject {
+        this.getScene().removeGameObject(this)
+        return this;
+    }
+
     public setParent(gameObject: GameObject | null, alreadyAdded = false) {
         if (this.parent === gameObject) {
             return;
