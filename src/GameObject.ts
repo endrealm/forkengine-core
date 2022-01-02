@@ -137,55 +137,62 @@ export class GameObject {
         })
     }
 
-
-    public addChild(gameObject: GameObject): GameObject {
-        const index = this.children.indexOf(gameObject);
-        if(index !== -1) return gameObject;
-
-        this.children.push(gameObject)
-        this.group.add(gameObject.group)
-        gameObject.setParent(gameObject, true)
-
-        if(gameObject.state === State.STOPPED) {
-            gameObject = this.getScene().addGameObject(gameObject)
-        }
-
-        return gameObject;
+    public setParent(parent: GameObject | null) {
+        if(this.parent === parent) return;
+        if(this.parent) this.parent._removeChild(this)
+        parent?._addChild(this)
+        this._setParent(parent)
     }
+
+    public addChild(child: GameObject): GameObject {
+        if(child.parent === this) return child;
+        if(child.parent) child.parent._removeChild(child)
+        this._addChild(child)
+        child._setParent(this)
+        return child;
+    }
+
+    public removeChild(child: GameObject): GameObject {
+        if(!this._removeChild(child)) return child; // wasn't a child
+        child._setParent(null);
+        return child;
+    }
+
+    private _setParent(parent: GameObject | null) {
+        this.parent = parent;
+        if(parent === null) {
+            // Re-add to scene
+            this.getScene().getActiveScene().add(this.group)
+        }
+    }
+    private _addChild(child: GameObject) {
+        const index = this.children.indexOf(child);
+        if(index !== -1) return child;
+
+        this.children.push(child)
+        console.log("Added child")
+        this.group.add(child.group)
+
+        if(child.state === State.STOPPED) {
+            child = this.getScene().addGameObject(child)
+        }
+    }
+    private _removeChild(child: GameObject): boolean {
+        const index = this.children.indexOf(child);
+        if(index === -1) return false;
+        this.children.splice(index, 1)
+        this.group.remove(child.group)
+
+        return true;
+    }
+
     public getChildren(): GameObject[] {
         return this.children;
-    }
-    public removeChild(gameObject: GameObject): GameObject {
-
-        const index = this.children.indexOf(gameObject);
-        if(index === -1) return gameObject;
-        this.children.splice(index, 1)
-        this.group.remove(gameObject.group)
-        gameObject.setParent(null)
-        return gameObject;
     }
 
     public destroy(): GameObject {
         this.getScene().removeGameObject(this)
         return this;
-    }
-
-    public setParent(gameObject: GameObject | null, alreadyAdded = false) {
-        if (this.parent === gameObject) {
-            return;
-        }
-        const oldParent = this.parent;
-        this.parent = null;
-        oldParent?.removeChild(this);
-
-        if(gameObject === null) {
-            // Re-add to scene
-            this.getScene().getActiveScene().add(this.group)
-        }
-
-        this.parent = gameObject;
-        if(!alreadyAdded)
-            this.parent?.addChild(this);
     }
 
     public getParent() {
